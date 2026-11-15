@@ -27,7 +27,6 @@ fun MonitorFormScreen(
     onBack: () -> Unit
 ) {
     val state by vm.state.collectAsState()
-    LaunchedEffect(state.saved) { if (state.saved) onBack() }
 
     Column(Modifier.fillMaxSize()) {
         Surface(tonalElevation = 2.dp) {
@@ -65,7 +64,7 @@ fun MonitorFormScreen(
             if (state.error != null) {
                 Text(state.error!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
-            Button(onClick = vm::save, enabled = !state.saving, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = { vm.save(onBack) }, enabled = !state.saving, modifier = Modifier.fillMaxWidth()) {
                 Text(if (state.saving) "保存并建立基准…" else "保存")
             }
         }

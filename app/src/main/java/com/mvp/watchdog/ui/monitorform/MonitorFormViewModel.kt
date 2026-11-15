@@ -17,8 +17,7 @@ data class MonitorFormState(
     val name: String = "",
     val keywords: String = "",
     val saving: Boolean = false,
-    val error: String? = null,
-    val saved: Boolean = false
+    val error: String? = null
 )
 
 class MonitorFormViewModel(private val dataSource: MonitorDataSource) : ViewModel() {
@@ -30,7 +29,7 @@ class MonitorFormViewModel(private val dataSource: MonitorDataSource) : ViewMode
     fun onNameChange(v: String) { _state.value = _state.value.copy(name = v) }
     fun onKeywordsChange(v: String) { _state.value = _state.value.copy(keywords = v) }
 
-    fun save() {
+    fun save(onSaved: () -> Unit) {
         val s = _state.value
         val url = s.url.trim()
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
@@ -47,7 +46,8 @@ class MonitorFormViewModel(private val dataSource: MonitorDataSource) : ViewMode
                 )
             )
             CheckPipeline(dataSource).check(id)
-            _state.value = _state.value.copy(saving = false, saved = true)
+            _state.value = MonitorFormState()
+            onSaved()
         }
     }
 
