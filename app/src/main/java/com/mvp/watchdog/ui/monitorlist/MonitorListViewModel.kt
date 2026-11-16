@@ -9,6 +9,7 @@ import com.mvp.watchdog.data.MonitorDataSource
 import com.mvp.watchdog.data.db.Monitor
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -16,6 +17,10 @@ class MonitorListViewModel(private val dataSource: MonitorDataSource) : ViewMode
 
     val monitors: StateFlow<List<Monitor>> = dataSource.listMonitors()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val unseenIds: StateFlow<Set<Long>> = dataSource.observeUnseenMonitorIds()
+        .map { it.toSet() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     fun delete(id: Long) = viewModelScope.launch { dataSource.deleteMonitor(id) }
 

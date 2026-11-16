@@ -29,7 +29,7 @@ import com.mvp.watchdog.ui.theme.WatchdogTheme
 
 sealed interface Screen {
     data object List : Screen
-    data object Form : Screen
+    data class Form(val id: Long? = null) : Screen
     data class Detail(val id: Long) : Screen
     data class Diff(val id: Long) : Screen
 }
@@ -61,11 +61,15 @@ class MainActivity : ComponentActivity() {
                 when (current) {
                     Screen.List -> MonitorListScreen(
                         vm = viewModel(factory = MonitorListViewModel.factory(container.monitorDataSource)),
-                        onAdd = { stack = stack + Screen.Form },
+                        onAdd = { stack = stack + Screen.Form() },
                         onOpen = { id -> stack = stack + Screen.Detail(id) }
                     )
-                    Screen.Form -> MonitorFormScreen(
-                        vm = viewModel(factory = MonitorFormViewModel.factory(container.monitorDataSource)),
+                    is Screen.Form -> MonitorFormScreen(
+                        vm = viewModel(
+                            key = "form_${current.id}",
+                            factory = MonitorFormViewModel.factory(container.monitorDataSource, current.id)
+                        ),
+                        isEdit = current.id != null,
                         onBack = { stack = stack.dropLast(1) }
                     )
                     is Screen.Detail -> MonitorDetailScreen(
@@ -74,6 +78,7 @@ class MainActivity : ComponentActivity() {
                             factory = MonitorDetailViewModel.factory(application, container.monitorDataSource, current.id)
                         ),
                         onBack = { stack = stack.dropLast(1) },
+                        onEdit = { id -> stack = stack + Screen.Form(id) },
                         onDiff = { id -> stack = stack + Screen.Diff(id) }
                     )
                     is Screen.Diff -> DiffScreen(

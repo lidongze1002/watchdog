@@ -27,9 +27,21 @@ class DiffViewModel(
     private val _ui = MutableStateFlow<DiffUi?>(null)
     val ui: StateFlow<DiffUi?> = _ui
 
-    init { load() }
+    private val _keywords = MutableStateFlow<List<String>>(emptyList())
+    val keywords: StateFlow<List<String>> = _keywords
 
-    fun load() = viewModelScope.launch {
+    init {
+        viewModelScope.launch {
+            _keywords.value = dataSource.getMonitor(monitorId)?.keywords
+                ?.split(Regex("[，,。.;；、\\s]+"))
+                ?.map { it.trim() }
+                ?.filter { it.isNotEmpty() }
+                ?: emptyList()
+            loadDiff()
+        }
+    }
+
+    fun loadDiff() = viewModelScope.launch {
         val snaps = dataSource.getSnapshots(monitorId).first()
         val latest = snaps.firstOrNull()
         _ui.value = when {

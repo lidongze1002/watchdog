@@ -10,10 +10,12 @@ import com.mvp.watchdog.data.CheckPipeline
 import com.mvp.watchdog.data.MonitorDataSource
 import com.mvp.watchdog.data.db.ChangeEvent
 import com.mvp.watchdog.data.db.Monitor
+import com.mvp.watchdog.data.db.Snapshot
 import com.mvp.watchdog.notify.NotificationHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -35,8 +37,15 @@ class MonitorDetailViewModel(
     val events: StateFlow<List<ChangeEvent>> = dataSource.getChangeEvents(monitorId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val latestSnapshot: StateFlow<Snapshot?> = dataSource.getSnapshots(monitorId)
+        .map { it.firstOrNull() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     init {
-        viewModelScope.launch { _monitor.value = dataSource.getMonitor(monitorId) }
+        viewModelScope.launch {
+            _monitor.value = dataSource.getMonitor(monitorId)
+            dataSource.markEventsSeen(monitorId)
+        }
     }
 
     fun check() = viewModelScope.launch {

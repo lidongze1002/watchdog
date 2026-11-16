@@ -27,18 +27,22 @@ import com.mvp.watchdog.ui.formatTime
 fun MonitorDetailScreen(
     vm: MonitorDetailViewModel,
     onBack: () -> Unit,
+    onEdit: (Long) -> Unit,
     onDiff: (Long) -> Unit
 ) {
     val monitor by vm.monitor.collectAsState()
     val events by vm.events.collectAsState()
     val checking by vm.checking.collectAsState()
     val checkMessage by vm.checkMessage.collectAsState()
+    val latestSnapshot by vm.latestSnapshot.collectAsState()
 
     Column(Modifier.fillMaxSize()) {
         Surface(tonalElevation = 2.dp) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)) {
                 TextButton(onClick = onBack) { Text("返回") }
                 Text(monitor?.name ?: "详情", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(8.dp))
+                Spacer(Modifier.weight(1f))
+                TextButton(onClick = { monitor?.let { onEdit(it.id) } }) { Text("编辑") }
             }
         }
         Column(
@@ -60,6 +64,19 @@ fun MonitorDetailScreen(
                 Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
             }
             Spacer(Modifier.height(16.dp))
+            val snap = latestSnapshot
+            if (snap != null) {
+                Text("最近快照", style = MaterialTheme.typography.titleMedium)
+                if (snap.title.isNotBlank()) {
+                    Text(snap.title, style = MaterialTheme.typography.bodyMedium)
+                }
+                Text(
+                    snap.textContent.take(200),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(16.dp))
+            }
             Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 Text("变化历史", style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.weight(1f))

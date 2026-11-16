@@ -20,10 +20,28 @@ data class MonitorFormState(
     val error: String? = null
 )
 
-class MonitorFormViewModel(private val dataSource: MonitorDataSource) : ViewModel() {
+class MonitorFormViewModel(
+    private val dataSource: MonitorDataSource,
+    private val monitorId: Long? = null
+) : ViewModel() {
 
     private val _state = MutableStateFlow(MonitorFormState())
     val state: StateFlow<MonitorFormState> = _state
+
+    fun load() {
+        if (monitorId != null) {
+            viewModelScope.launch {
+                val m = dataSource.getMonitor(monitorId)
+                _state.value = if (m != null) {
+                    MonitorFormState(url = m.url, name = m.name, keywords = m.keywords)
+                } else {
+                    MonitorFormState()
+                }
+            }
+        } else {
+            _state.value = MonitorFormState()
+        }
+    }
 
     fun onUrlChange(v: String) { _state.value = _state.value.copy(url = v, error = null) }
     fun onNameChange(v: String) { _state.value = _state.value.copy(name = v) }
@@ -38,22 +56,28 @@ class MonitorFormViewModel(private val dataSource: MonitorDataSource) : ViewMode
         }
         viewModelScope.launch {
             _state.value = _state.value.copy(saving = true, error = null)
-            val id = dataSource.saveMonitor(
-                Monitor(
-                    url = url,
-                    name = s.name.ifBlank { url },
-                    keywords = s.keywords.trim()
+            if (monitorId == null) {
+                val id = dataSource.saveMonitor(
+                    Monitor(url = url, name = s.name.ifBlank { url }, keywords = s.keywords.trim())
                 )
-            )
-            CheckPipeline(dataSource).check(id)
+                CheckPipeline(dataSource).check(id)
+            } else {
+                val existing = dataSource.getMonitor(monitorId)
+                if (existing != null) {
+                    dataSource.saveMonitor(
+                        existing.copy(url = url, name = s.name.ifBlank { url }, keywords = s.keywords.trim())
+                    )
+                }
+            }
             _state.value = MonitorFormState()
             onSaved()
         }
     }
 
     companion object {
-        fun factory(dataSource: MonitorDataSource): ViewModelProvider.Factory = viewModelFactory {
-            initializer { MonitorFormViewModel(dataSource) }
-        }
+        fun factory(dataSource: MonitorDataSource, monitorId: Long? = null): ViewModelProvider.Factory =
+            viewModelFactory {
+                initializer { MonitorFormViewModel(dataSource, monitorId) }
+            }
     }
 }

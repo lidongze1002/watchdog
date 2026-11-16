@@ -16,4 +16,5 @@ interface MonitorDataSource {
     suspend fun saveChangeEvent(e: ChangeEvent)
     fun getChangeEvents(monitorId: Long): Flow<List<ChangeEvent>>
     suspend fun markEventsSeen(monitorId: Long)
+    fun observeUnseenMonitorIds(): Flow<List<Long>>
 }

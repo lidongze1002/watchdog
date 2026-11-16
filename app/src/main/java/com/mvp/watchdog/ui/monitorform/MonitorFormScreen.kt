@@ -24,15 +24,18 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MonitorFormScreen(
     vm: MonitorFormViewModel,
+    isEdit: Boolean,
     onBack: () -> Unit
 ) {
     val state by vm.state.collectAsState()
+
+    LaunchedEffect(Unit) { vm.load() }
 
     Column(Modifier.fillMaxSize()) {
         Surface(tonalElevation = 2.dp) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)) {
                 TextButton(onClick = onBack) { Text("返回") }
-                Text("添加监控", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(8.dp))
+                Text(if (isEdit) "编辑监控" else "添加监控", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(8.dp))
             }
         }
         Column(
@@ -65,7 +68,7 @@ fun MonitorFormScreen(
                 Text(state.error!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
             Button(onClick = { vm.save(onBack) }, enabled = !state.saving, modifier = Modifier.fillMaxWidth()) {
-                Text(if (state.saving) "保存并建立基准…" else "保存")
+                Text(if (state.saving) "保存中…" else "保存")
             }
         }
     }

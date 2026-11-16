@@ -17,6 +17,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -25,6 +30,7 @@ fun DiffScreen(
     onBack: () -> Unit
 ) {
     val ui by vm.ui.collectAsState()
+    val keywords by vm.keywords.collectAsState()
 
     Column(Modifier.fillMaxSize()) {
         Surface(tonalElevation = 2.dp) {
@@ -47,12 +53,16 @@ fun DiffScreen(
                 if (d.removed.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
                     Text("删除", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.error)
-                    d.removed.forEach { Text("- $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
+                    d.removed.forEach {
+                        Text("- ${highlight(it, keywords)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                    }
                 }
                 if (d.added.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
                     Text("新增", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
-                    d.added.forEach { Text("+ $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
+                    d.added.forEach {
+                        Text("+ ${highlight(it, keywords)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                    }
                 }
                 if (d.added.isEmpty() && d.removed.isEmpty()) {
                     Spacer(Modifier.height(12.dp))
@@ -60,5 +70,27 @@ fun DiffScreen(
                 }
             }
         }
+    }
+}
+
+private fun highlight(text: String, keywords: List<String>): AnnotatedString = buildAnnotatedString {
+    var i = 0
+    while (i < text.length) {
+        var best: Pair<Int, String>? = null
+        for (k in keywords) {
+            if (k.isEmpty()) continue
+            val idx = text.indexOf(k, i, ignoreCase = true)
+            if (idx >= 0 && (best == null || idx < best!!.first)) best = idx to k
+        }
+        if (best == null) {
+            append(text.substring(i))
+            break
+        }
+        val (idx, k) = best
+        if (idx > i) append(text.substring(i, idx))
+        withStyle(SpanStyle(background = Color.Yellow, color = Color.Black)) {
+            append(text.substring(idx, idx + k.length))
+        }
+        i = idx + k.length
     }
 }

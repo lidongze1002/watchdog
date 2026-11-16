@@ -46,4 +46,7 @@ class LocalMonitorDataSource(
     override suspend fun markEventsSeen(monitorId: Long) {
         changeEventDao.markSeen(monitorId)
     }
+
+    override fun observeUnseenMonitorIds(): Flow<List<Long>> =
+        changeEventDao.observeUnseenMonitorIds()
 }

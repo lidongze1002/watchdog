@@ -15,4 +15,7 @@ interface ChangeEventDao {
 
     @Query("UPDATE change_events SET seen = 1 WHERE monitorId = :id")
     suspend fun markSeen(id: Long)
+
+    @Query("SELECT DISTINCT monitorId FROM change_events WHERE seen = 0")
+    fun observeUnseenMonitorIds(): Flow<List<Long>>
 }
