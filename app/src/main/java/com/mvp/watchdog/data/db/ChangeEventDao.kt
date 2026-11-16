@@ -18,4 +18,7 @@ interface ChangeEventDao {
 
     @Query("SELECT DISTINCT monitorId FROM change_events WHERE seen = 0")
     fun observeUnseenMonitorIds(): Flow<List<Long>>
+
+    @Query("DELETE FROM change_events WHERE monitorId = :monitorId")
+    suspend fun deleteByMonitor(monitorId: Long)
 }

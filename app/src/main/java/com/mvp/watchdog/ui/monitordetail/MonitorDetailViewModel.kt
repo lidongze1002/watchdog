@@ -70,6 +70,11 @@ class MonitorDetailViewModel(
         _checking.value = false
     }
 
+    fun deleteMonitor(onDeleted: () -> Unit) = viewModelScope.launch {
+        dataSource.deleteMonitor(monitorId)
+        onDeleted()
+    }
+
     companion object {
         fun factory(app: Application, dataSource: MonitorDataSource, monitorId: Long): ViewModelProvider.Factory =
             viewModelFactory {

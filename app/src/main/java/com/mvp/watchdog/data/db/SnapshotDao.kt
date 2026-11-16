@@ -15,4 +15,7 @@ interface SnapshotDao {
 
     @Insert
     suspend fun insert(s: Snapshot): Long
+
+    @Query("DELETE FROM snapshots WHERE monitorId = :monitorId")
+    suspend fun deleteByMonitor(monitorId: Long)
 }

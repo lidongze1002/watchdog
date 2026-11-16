@@ -23,6 +23,8 @@ class LocalMonitorDataSource(
         }
 
     override suspend fun deleteMonitor(id: Long) {
+        changeEventDao.deleteByMonitor(id)
+        snapshotDao.deleteByMonitor(id)
         monitorDao.delete(id)
     }
 
