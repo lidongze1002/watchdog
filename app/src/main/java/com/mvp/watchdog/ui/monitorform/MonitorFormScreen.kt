@@ -20,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mvp.watchdog.ui.common.AppTopBar
 
 @Composable
 fun MonitorFormScreen(
@@ -32,12 +33,7 @@ fun MonitorFormScreen(
     LaunchedEffect(Unit) { vm.load() }
 
     Column(Modifier.fillMaxSize()) {
-        Surface(tonalElevation = 2.dp) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)) {
-                TextButton(onClick = onBack) { Text("返回") }
-                Text(if (isEdit) "编辑监控" else "添加监控", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(8.dp))
-            }
-        }
+        AppTopBar(title = if (isEdit) "编辑监控" else "添加监控", onBack = onBack)
         Column(
             Modifier
                 .fillMaxSize()

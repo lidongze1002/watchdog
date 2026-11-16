@@ -23,6 +23,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.mvp.watchdog.ui.common.AppTopBar
 
 @Composable
 fun DiffScreen(
@@ -33,12 +34,7 @@ fun DiffScreen(
     val keywords by vm.keywords.collectAsState()
 
     Column(Modifier.fillMaxSize()) {
-        Surface(tonalElevation = 2.dp) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)) {
-                TextButton(onClick = onBack) { Text("返回") }
-                Text("变更对比", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(8.dp))
-            }
-        }
+        AppTopBar(title = "变更对比", onBack = onBack)
         val d = ui
         if (d == null) {
             Text("加载中…", Modifier.padding(16.dp))

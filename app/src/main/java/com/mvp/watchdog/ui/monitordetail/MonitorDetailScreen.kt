@@ -10,10 +10,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mvp.watchdog.ui.common.AppTopBar
 import com.mvp.watchdog.ui.formatTime
 
 @Composable
@@ -43,14 +48,15 @@ fun MonitorDetailScreen(
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize()) {
-        Surface(tonalElevation = 2.dp) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)) {
-                TextButton(onClick = onBack) { Text("返回") }
-                Text(monitor?.name ?: "详情", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(8.dp))
-                Spacer(Modifier.weight(1f))
-                TextButton(onClick = { monitor?.let { onEdit(it.id) } }) { Text("编辑") }
+        AppTopBar(
+            title = monitor?.name ?: "详情",
+            onBack = onBack,
+            actions = {
+                IconButton(onClick = { monitor?.let { onEdit(it.id) } }) {
+                    Icon(Icons.Filled.Edit, contentDescription = "编辑")
+                }
             }
-        }
+        )
         Column(
             Modifier
                 .fillMaxSize()
