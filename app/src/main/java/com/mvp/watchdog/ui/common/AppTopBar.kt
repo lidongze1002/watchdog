@@ -1,5 +1,7 @@
 package com.mvp.watchdog.ui.common
 
+import com.mvp.watchdog.ui.i18n.T
+
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -34,7 +36,7 @@ fun AppTopBar(
         navigationIcon = {
             if (onBack != null) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = T("返回", "Back"))
                 }
             }
         },

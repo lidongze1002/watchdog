@@ -32,7 +32,8 @@ class CheckWorker(appContext: Context, params: WorkerParameters) :
                 NotificationHelper.notify(
                     applicationContext,
                     monitor.name,
-                    "检测到变化：" + outcome.matchedKeywords.joinToString("、")
+                    com.mvp.watchdog.ui.i18n.T("检测到变化：", "Change detected: ") +
+                        outcome.matchedKeywords.joinToString("、")
                 )
             }
             changed.size > 1 -> {

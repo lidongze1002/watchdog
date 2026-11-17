@@ -1,5 +1,7 @@
 package com.mvp.watchdog.ui.allchanges
 
+import com.mvp.watchdog.ui.i18n.T
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,11 +54,11 @@ fun AllChangesScreen(
                 SearchBar(
                     query = query,
                     onQueryChange = vm::onQueryChange,
-                    placeholder = "搜索监控名、关键词或变化内容"
+                    placeholder = T("搜索监控名、关键词或变化内容", "Search monitor, keyword or change")
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    "共 $total 条变化",
+                    T("共 $total 条变化", "$total changes"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -91,7 +93,10 @@ fun AllChangesScreen(
                                 )
                                 Spacer(Modifier.width(6.dp))
                                 Text(
+                                    T(
                                     "${group.rows.size} 条",
+                                    "${group.rows.size} items"
+                                ),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                                 )

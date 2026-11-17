@@ -1,5 +1,9 @@
 package com.mvp.watchdog.ui.monitorlist
 
+import com.mvp.watchdog.ui.i18n.LanguageDialog
+import com.mvp.watchdog.ui.i18n.Lang
+import com.mvp.watchdog.ui.i18n.T
+
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -23,9 +27,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
@@ -83,6 +89,7 @@ fun MonitorListScreen(
     var refreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     var query by remember { mutableStateOf("") }
+    var showLanguage by remember { mutableStateOf(false) }
     var pendingDeleteId by remember { mutableStateOf<Long?>(null) }
     val filtered = if (query.isBlank()) monitors else monitors.filter {
         it.name.contains(query, ignoreCase = true) || it.url.contains(query, ignoreCase = true)
@@ -103,7 +110,7 @@ fun MonitorListScreen(
             ) {
                 Icon(Icons.Filled.Add, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("添加监控")
+                Text(T("添加监控", "Add monitor"))
             }
         }
     ) { padding ->
@@ -120,22 +127,25 @@ fun MonitorListScreen(
                     )
                     .padding(22.dp)
             ) {
-                Column {
-                    Text(
-                        "盯梢",
+                Row(verticalAlignment = Alignment.Top) {
+                Column(Modifier.weight(1f)) {
+                    Text(T("盯梢", "Watchdog"),
                         color = Color.White,
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        "${monitors.size} 个监控 · ${unseenIds.size} 个有更新",
+                        T(
+                            "${monitors.size} 个监控 · ${unseenIds.size} 个有更新",
+                            "${monitors.size} monitor${if (monitors.size == 1) "" else "s"} · " +
+                                "${unseenIds.size} updated"
+                        ),
                         color = Color.White.copy(alpha = 0.85f),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(Modifier.height(6.dp))
-                    Text(
-                        "查看全部变化 ›",
+                    Text(T("查看全部变化 ›", "See all changes ›"),
                         color = Color.White,
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
@@ -146,12 +156,20 @@ fun MonitorListScreen(
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
+                IconButton(onClick = { showLanguage = true }) {
+                    Icon(
+                        Icons.Filled.Settings,
+                        contentDescription = T("语言设置", "Language settings"),
+                        tint = Color.White
+                    )
+                }
+                }
             }
             Box(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
                 SearchBar(
                     query = query,
                     onQueryChange = { query = it },
-                    placeholder = "搜索监控名称或网址"
+                    placeholder = T("搜索监控名称或网址", "Search monitor name or URL")
                 )
             }
             PullToRefreshBox(
@@ -182,10 +200,9 @@ fun MonitorListScreen(
                                 modifier = Modifier.size(120.dp)
                             )
                             Spacer(Modifier.height(8.dp))
-                            Text("还没有监控项", style = MaterialTheme.typography.titleMedium)
+                            Text(T("还没有监控项", "No monitors yet"), style = MaterialTheme.typography.titleMedium)
                             Spacer(Modifier.height(4.dp))
-                            Text(
-                                "点右下角「添加监控」开始",
+                            Text(T("点右下角「添加监控」开始", "Tap “Add monitor” at the bottom right"),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -228,7 +245,7 @@ fun MonitorListScreen(
                                     ) {
                                         Icon(
                                             Icons.Filled.Delete,
-                                            contentDescription = "删除监控",
+                                            contentDescription = T("删除监控", "Delete monitor"),
                                             tint = MaterialTheme.colorScheme.onErrorContainer
                                         )
                                     }
@@ -301,16 +318,19 @@ fun MonitorListScreen(
             if (pendingDeleteId != null) {
                 AlertDialog(
                     onDismissRequest = { pendingDeleteId = null },
-                    title = { Text("删除监控") },
-                    text = { Text("确定删除这个监控？相关快照与变化记录也会一并删除。") },
+                    title = { Text(T("删除监控", "Delete monitor")) },
+                    text = { Text(T("确定删除这个监控？相关快照与变化记录也会一并删除。", "Delete this monitor? Its snapshots and change history will also be removed.")) },
                     confirmButton = {
                         TextButton(onClick = {
                             pendingDeleteId?.let { vm.delete(it) }
                             pendingDeleteId = null
-                        }) { Text("删除") }
+                        }) { Text(T("删除", "Delete")) }
                     },
-                    dismissButton = { TextButton(onClick = { pendingDeleteId = null }) { Text("取消") } }
+                    dismissButton = { TextButton(onClick = { pendingDeleteId = null }) { Text(T("取消", "Cancel")) } }
                 )
+            }
+            if (showLanguage) {
+                LanguageDialog(onDismiss = { showLanguage = false })
             }
         }
     }

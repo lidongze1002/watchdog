@@ -1,5 +1,7 @@
 package com.mvp.watchdog.ui.common
 
+import com.mvp.watchdog.ui.i18n.T
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -67,7 +69,7 @@ fun SearchBar(
                     IconButton(onClick = { onQueryChange("") }, modifier = Modifier.size(24.dp)) {
                         Icon(
                             Icons.Filled.Close,
-                            contentDescription = "清除",
+                            contentDescription = T("清除", "Clear"),
                             modifier = Modifier.size(18.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )

@@ -1,5 +1,7 @@
 package com.mvp.watchdog.ui.monitordetail
 
+import com.mvp.watchdog.ui.i18n.T
+
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -73,7 +75,7 @@ fun MonitorDetailScreen(
             onBack = onBack,
             actions = {
                 IconButton(onClick = { monitor?.let { onEdit(it.id) } }) {
-                    Icon(Icons.Filled.Edit, contentDescription = "编辑")
+                    Icon(Icons.Filled.Edit, contentDescription = T("编辑", "Edit"))
                 }
             }
         )
@@ -85,12 +87,20 @@ fun MonitorDetailScreen(
         ) {
             monitor?.let { m ->
                 Text(m.url, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("关注点：${m.keywords.ifBlank { "（任意变化）" }}", style = MaterialTheme.typography.bodyMedium)
-                Text("上次检查：${formatTime(m.lastCheckedAt)}", style = MaterialTheme.typography.bodySmall)
                 Text(
-                    "检查频率：${intervalLabel(m.intervalMinutes)}" +
+                    T("关注点：", "Keywords: ") +
+                        m.keywords.ifBlank { T("（任意变化）", "(any change)") },
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    T("上次检查：", "Last check: ") + formatTime(m.lastCheckedAt),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    T("检查频率：", "Frequency: ") + intervalLabel(m.intervalMinutes) +
                         if (m.lastCheckedAt > 0) {
-                            " · 计划下次约 ${formatClock(m.lastCheckedAt + m.intervalMinutes * 60_000L)}"
+                            T(" · 计划下次约 ", " · next around ") +
+                                formatClock(m.lastCheckedAt + m.intervalMinutes * 60_000L)
                         } else {
                             ""
                         },
@@ -104,7 +114,8 @@ fun MonitorDetailScreen(
                         shape = MaterialTheme.shapes.small
                     ) {
                         Text(
-                            "上次检查失败（${formatTime(m.lastErrorAt)}）：${m.lastError}",
+                            T("上次检查失败（", "Last check failed (") +
+                                formatTime(m.lastErrorAt) + T("）：", "): ") + m.lastError,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onErrorContainer
@@ -114,7 +125,7 @@ fun MonitorDetailScreen(
             }
             Spacer(Modifier.height(12.dp))
             Button(onClick = vm::check, enabled = !checking, modifier = Modifier.fillMaxWidth()) {
-                Text(if (checking) "检查中…" else "立即检查")
+                Text(if (checking) T("检查中…", "Checking…") else T("立即检查", "Check now"))
             }
             checkMessage?.let {
                 Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
@@ -122,7 +133,7 @@ fun MonitorDetailScreen(
             Spacer(Modifier.height(16.dp))
             val snap = latestSnapshot
             if (snap != null) {
-                Text("最近快照", style = MaterialTheme.typography.titleMedium)
+                Text(T("最近快照", "Latest snapshot"), style = MaterialTheme.typography.titleMedium)
                 if (snap.title.isNotBlank()) {
                     Text(snap.title, style = MaterialTheme.typography.bodyMedium)
                 }
@@ -134,14 +145,14 @@ fun MonitorDetailScreen(
                 Spacer(Modifier.height(16.dp))
             }
             Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                Text("变化历史", style = MaterialTheme.typography.titleMedium)
+                Text(T("变化历史", "Change history"), style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.weight(1f))
                 TextButton(onClick = { monitor?.let { onDiff(it.id) } }, enabled = events.isNotEmpty()) {
-                    Text("查看 Diff")
+                    Text(T("查看 Diff", "View diff"))
                 }
             }
             if (events.isEmpty()) {
-                Text("还没有变化记录", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(T("还没有变化记录", "No changes yet"), color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     events.forEachIndexed { index, e ->
@@ -171,21 +182,21 @@ fun MonitorDetailScreen(
                 onClick = { showDeleteConfirm = true },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-            ) { Text("删除监控") }
+            ) { Text(T("删除监控", "Delete monitor")) }
         }
     }
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("删除监控") },
+            title = { Text(T("删除监控", "Delete monitor")) },
             text = { Text("确定删除「${monitor?.name}」？相关快照与变化记录也会一并删除。") },
             confirmButton = {
                 TextButton(onClick = {
                     showDeleteConfirm = false
                     vm.deleteMonitor(onBack)
-                }) { Text("删除") }
+                }) { Text(T("删除", "Delete")) }
             },
-            dismissButton = { TextButton(onClick = { showDeleteConfirm = false }) { Text("取消") } }
+            dismissButton = { TextButton(onClick = { showDeleteConfirm = false }) { Text(T("取消", "Cancel")) } }
         )
     }
 }

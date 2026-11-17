@@ -18,7 +18,11 @@ object NotificationHelper {
     fun ensureChannel(context: Context) {
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         nm.createNotificationChannel(
-            NotificationChannel(CHANNEL_ID, "监控变化", NotificationManager.IMPORTANCE_DEFAULT)
+            NotificationChannel(
+                CHANNEL_ID,
+                com.mvp.watchdog.ui.i18n.T("监控变化", "Monitor changes"),
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
         )
     }
 
@@ -59,12 +63,20 @@ object NotificationHelper {
         if (items.isEmpty() || !allowed(context)) return
         ensureChannel(context)
         val lines = items.joinToString("\n") { (name, keywords) ->
-            val hits = keywords.joinToString("、").ifBlank { "页面变化" }
-            "• $name：$hits"
+            val hits = keywords.joinToString("、").ifBlank {
+                com.mvp.watchdog.ui.i18n.T("页面变化", "Page changed")
+            }
+            val sep = if (com.mvp.watchdog.ui.i18n.Lang.current == "en") ": " else "："
+            "• $name$sep$hits"
         }
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("${items.size} 个监控有变化")
+            .setContentTitle(
+                com.mvp.watchdog.ui.i18n.T(
+                    "${items.size} 个监控有变化",
+                    "${items.size} monitors changed"
+                )
+            )
             .setContentText(items.joinToString("、") { it.first })
             .setStyle(NotificationCompat.BigTextStyle().bigText(lines))
             .setContentIntent(contentIntent(context))

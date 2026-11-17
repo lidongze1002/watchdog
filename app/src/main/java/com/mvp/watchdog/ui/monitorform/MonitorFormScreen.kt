@@ -1,5 +1,7 @@
 package com.mvp.watchdog.ui.monitorform
 
+import com.mvp.watchdog.ui.i18n.T
+
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -48,23 +50,23 @@ fun MonitorFormScreen(
             OutlinedTextField(
                 value = state.name,
                 onValueChange = vm::onNameChange,
-                label = { Text("名称") },
+                label = { Text(T("名称", "Name")) },
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
                 value = state.url,
                 onValueChange = vm::onUrlChange,
-                label = { Text("网址 URL") },
+                label = { Text(T("网址 URL", "URL")) },
                 isError = state.error != null,
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
                 value = state.keywords,
                 onValueChange = vm::onKeywordsChange,
-                label = { Text("关注点（可空，留空则页面变化即提醒）") },
+                label = { Text(T("关注点（可空，留空则页面变化即提醒）", "Keywords (optional; any change if empty)")) },
                 modifier = Modifier.fillMaxWidth()
             )
-            Text("检查频率", style = MaterialTheme.typography.titleSmall)
+            Text(T("检查频率", "Check frequency"), style = MaterialTheme.typography.titleSmall)
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -84,8 +86,7 @@ fun MonitorFormScreen(
                     )
                 }
             }
-            Text(
-                "提醒由系统调度，实际时间可能有几分钟误差；只在你设定的频率到期时检查。",
+            Text(T("提醒由系统调度，实际时间可能有几分钟误差；只在你设定的频率到期时检查。", "Android schedules checks and may be a few minutes late; only due monitors are checked."),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -93,7 +94,7 @@ fun MonitorFormScreen(
                 Text(state.error!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
             Button(onClick = { vm.save(onBack) }, enabled = !state.saving, modifier = Modifier.fillMaxWidth()) {
-                Text(if (state.saving) "保存中…" else "保存")
+                Text(if (state.saving) T("保存中…", "Saving…") else T("保存", "Save"))
             }
         }
     }

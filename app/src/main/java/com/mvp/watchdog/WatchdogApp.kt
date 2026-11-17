@@ -7,6 +7,7 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.mvp.watchdog.di.AppContainer
+import com.mvp.watchdog.ui.i18n.Lang
 import com.mvp.watchdog.work.CheckWorker
 import java.util.concurrent.TimeUnit
 
@@ -16,6 +17,7 @@ class WatchdogApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        Lang.load(this)
         container = AppContainer(this)
         scheduleChecks()
     }

@@ -1,5 +1,7 @@
 package com.mvp.watchdog.ui.monitordetail
 
+import com.mvp.watchdog.ui.i18n.T
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,10 +36,10 @@ fun DiffScreen(
     val keywords by vm.keywords.collectAsState()
 
     Column(Modifier.fillMaxSize()) {
-        AppTopBar(title = "变更对比", onBack = onBack)
+        AppTopBar(title = T("变更对比", "Diff"), onBack = onBack)
         val d = ui
         if (d == null) {
-            Text("加载中…", Modifier.padding(16.dp))
+            Text(T("加载中…", "Loading…"), Modifier.padding(16.dp))
         } else {
             Column(
                 Modifier
@@ -48,21 +50,21 @@ fun DiffScreen(
                 Text(d.title, style = MaterialTheme.typography.titleMedium)
                 if (d.removed.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
-                    Text("删除", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.error)
+                    Text(T("删除", "Delete"), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.error)
                     d.removed.forEach {
                         Text("- ${highlight(it, keywords)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                     }
                 }
                 if (d.added.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
-                    Text("新增", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                    Text(T("新增", "Added"), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
                     d.added.forEach {
                         Text("+ ${highlight(it, keywords)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                     }
                 }
                 if (d.added.isEmpty() && d.removed.isEmpty()) {
                     Spacer(Modifier.height(12.dp))
-                    Text("（这是基准快照，还没有差异）", style = MaterialTheme.typography.bodySmall)
+                    Text(T("（这是基准快照，还没有差异）", "(Baseline snapshot — no differences yet)"), style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
