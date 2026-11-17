@@ -17,4 +17,5 @@ interface MonitorDataSource {
     fun getChangeEvents(monitorId: Long): Flow<List<ChangeEvent>>
     suspend fun markEventsSeen(monitorId: Long)
     fun observeUnseenMonitorIds(): Flow<List<Long>>
+    fun observeAllChangeEvents(): Flow<List<com.mvp.watchdog.data.db.ChangeEventRow>>
 }

@@ -26,6 +26,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mvp.watchdog.ui.allchanges.AllChangesScreen
+import com.mvp.watchdog.ui.allchanges.AllChangesViewModel
 import com.mvp.watchdog.ui.monitorform.MonitorFormScreen
 import com.mvp.watchdog.ui.monitorform.MonitorFormViewModel
 import com.mvp.watchdog.ui.monitorlist.MonitorListScreen
@@ -38,6 +40,7 @@ import com.mvp.watchdog.ui.theme.WatchdogTheme
 
 sealed interface Screen {
     data object List : Screen
+    data object AllChanges : Screen
     data class Form(val id: Long? = null) : Screen
     data class Detail(val id: Long) : Screen
     data class Diff(val id: Long) : Screen
@@ -85,8 +88,14 @@ class MainActivity : ComponentActivity() {
                                 vm = viewModel(factory = MonitorListViewModel.factory(container.monitorDataSource)),
                                 onAdd = { stack = stack + Screen.Form() },
                                 onOpen = { id -> stack = stack + Screen.Detail(id) },
+                                onOpenAllChanges = { stack = stack + Screen.AllChanges },
                                 sharedTransitionScope = sharedScope,
                                 animatedVisibilityScope = animScope
+                            )
+                            Screen.AllChanges -> AllChangesScreen(
+                                vm = viewModel(factory = AllChangesViewModel.factory(container.monitorDataSource)),
+                                onBack = { stack = stack.dropLast(1) },
+                                onOpenMonitor = { id -> stack = stack + Screen.Detail(id) }
                             )
                             is Screen.Form -> MonitorFormScreen(
                                 vm = viewModel(

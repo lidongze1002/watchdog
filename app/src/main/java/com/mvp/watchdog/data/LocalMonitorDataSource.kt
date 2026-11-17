@@ -51,4 +51,7 @@ class LocalMonitorDataSource(
 
     override fun observeUnseenMonitorIds(): Flow<List<Long>> =
         changeEventDao.observeUnseenMonitorIds()
+
+    override fun observeAllChangeEvents(): Flow<List<com.mvp.watchdog.data.db.ChangeEventRow>> =
+        changeEventDao.observeAllWithMonitor()
 }

@@ -36,7 +36,9 @@ import androidx.compose.ui.unit.dp
 import com.mvp.watchdog.ui.common.AppCard
 import com.mvp.watchdog.ui.common.AppTopBar
 import com.mvp.watchdog.ui.common.staggeredAppear
+import com.mvp.watchdog.ui.formatClock
 import com.mvp.watchdog.ui.formatTime
+import com.mvp.watchdog.ui.intervalLabel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -85,6 +87,30 @@ fun MonitorDetailScreen(
                 Text(m.url, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text("关注点：${m.keywords.ifBlank { "（任意变化）" }}", style = MaterialTheme.typography.bodyMedium)
                 Text("上次检查：${formatTime(m.lastCheckedAt)}", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    "检查频率：${intervalLabel(m.intervalMinutes)}" +
+                        if (m.lastCheckedAt > 0) {
+                            " · 计划下次约 ${formatClock(m.lastCheckedAt + m.intervalMinutes * 60_000L)}"
+                        } else {
+                            ""
+                        },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                if (m.lastError.isNotBlank()) {
+                    Spacer(Modifier.height(8.dp))
+                    Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        shape = MaterialTheme.shapes.small
+                    ) {
+                        Text(
+                            "上次检查失败（${formatTime(m.lastErrorAt)}）：${m.lastError}",
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                }
             }
             Spacer(Modifier.height(12.dp))
             Button(onClick = vm::check, enabled = !checking, modifier = Modifier.fillMaxWidth()) {

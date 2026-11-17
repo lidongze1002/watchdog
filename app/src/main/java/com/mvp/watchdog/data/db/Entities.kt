@@ -1,5 +1,6 @@
 package com.mvp.watchdog.data.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -13,7 +14,10 @@ data class Monitor(
     val enabled: Boolean = true,
     val createdAt: Long = System.currentTimeMillis(),
     val lastCheckedAt: Long = 0,
-    val lastSnapshotId: Long = 0
+    val lastSnapshotId: Long = 0,
+    @ColumnInfo(defaultValue = "60") val intervalMinutes: Int = 60,
+    @ColumnInfo(defaultValue = "") val lastError: String = "",
+    @ColumnInfo(defaultValue = "0") val lastErrorAt: Long = 0
 )
 
 @Entity(tableName = "snapshots", indices = [Index("monitorId")])

@@ -27,17 +27,33 @@ class CheckPipeline(
             ?: return CheckOutcome(false, emptyList(), "监控不存在")
 
         val fetched = withContext(Dispatchers.IO) { fetcher.fetch(monitor.url) }
-        if (!fetched.ok) return CheckOutcome(false, emptyList(), fetched.errorMessage)
+        if (!fetched.ok) {
+            val message = fetched.errorMessage ?: "抓取失败"
+            val now = System.currentTimeMillis()
+            dataSource.saveMonitor(
+                monitor.copy(lastCheckedAt = now, lastError = message, lastErrorAt = now)
+            )
+            return CheckOutcome(false, emptyList(), message)
+        }
 
         val page = HtmlTextExtractor.extract(fetched.html)
-        if (page.empty) return CheckOutcome(false, emptyList(), "页面无可提取正文（可能为 JS 渲染或空页）")
+        if (page.empty) {
+            val message = "页面无可提取正文（可能为 JS 渲染或空页）"
+            val now = System.currentTimeMillis()
+            dataSource.saveMonitor(
+                monitor.copy(lastCheckedAt = now, lastError = message, lastErrorAt = now)
+            )
+            return CheckOutcome(false, emptyList(), message)
+        }
 
         val hash = page.text.hashCode().toString()
         val latest = dataSource.latestSnapshot(monitorId)
         val now = System.currentTimeMillis()
 
         if (latest != null && latest.textHash == hash) {
-            dataSource.saveMonitor(monitor.copy(lastCheckedAt = now))
+            dataSource.saveMonitor(
+                monitor.copy(lastCheckedAt = now, lastError = "", lastErrorAt = 0)
+            )
             return CheckOutcome(false, emptyList(), null)
         }
 
@@ -72,7 +88,14 @@ class CheckPipeline(
             )
         }
 
-        dataSource.saveMonitor(monitor.copy(lastCheckedAt = now, lastSnapshotId = snapshotId))
+        dataSource.saveMonitor(
+            monitor.copy(
+                lastCheckedAt = now,
+                lastSnapshotId = snapshotId,
+                lastError = "",
+                lastErrorAt = 0
+            )
+        )
         return CheckOutcome(changed, matched, null)
     }
 }

@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,6 +63,7 @@ import com.mvp.watchdog.ui.common.SearchBar
 import com.mvp.watchdog.ui.common.StatusChip
 import com.mvp.watchdog.ui.common.staggeredAppear
 import com.mvp.watchdog.ui.formatTime
+import com.mvp.watchdog.ui.intervalLabel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -71,6 +73,7 @@ fun MonitorListScreen(
     vm: MonitorListViewModel,
     onAdd: () -> Unit,
     onOpen: (Long) -> Unit,
+    onOpenAllChanges: () -> Unit,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
@@ -129,6 +132,18 @@ fun MonitorListScreen(
                         "${monitors.size} 个监控 · ${unseenIds.size} 个有更新",
                         color = Color.White.copy(alpha = 0.85f),
                         style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        "查看全部变化 ›",
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(Color.White.copy(alpha = 0.18f))
+                            .clickable(onClick = onOpenAllChanges)
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
             }
@@ -249,16 +264,32 @@ fun MonitorListScreen(
                                         )
                                         Spacer(Modifier.height(6.dp))
                                         Text(
-                                            formatTime(m.lastCheckedAt),
+                                            "${intervalLabel(m.intervalMinutes)} · ${formatTime(m.lastCheckedAt)}",
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
+                                        if (m.lastError.isNotBlank()) {
+                                            Spacer(Modifier.height(2.dp))
+                                            Text(
+                                                "上次失败：${m.lastError}",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.error,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
                                     }
                                     if (m.id in unseenIds) {
                                         StatusChip(
                                             text = "有更新",
                                             container = MaterialTheme.colorScheme.primaryContainer,
                                             content = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    } else if (m.lastError.isNotBlank()) {
+                                        StatusChip(
+                                            text = "失败",
+                                            container = MaterialTheme.colorScheme.errorContainer,
+                                            content = MaterialTheme.colorScheme.onErrorContainer
                                         )
                                     }
                                 }

@@ -16,6 +16,7 @@ data class MonitorFormState(
     val url: String = "",
     val name: String = "",
     val keywords: String = "",
+    val intervalMinutes: Int = 60,
     val saving: Boolean = false,
     val error: String? = null
 )
@@ -33,7 +34,12 @@ class MonitorFormViewModel(
             viewModelScope.launch {
                 val m = dataSource.getMonitor(monitorId)
                 _state.value = if (m != null) {
-                    MonitorFormState(url = m.url, name = m.name, keywords = m.keywords)
+                    MonitorFormState(
+                        url = m.url,
+                        name = m.name,
+                        keywords = m.keywords,
+                        intervalMinutes = m.intervalMinutes
+                    )
                 } else {
                     MonitorFormState()
                 }
@@ -46,6 +52,7 @@ class MonitorFormViewModel(
     fun onUrlChange(v: String) { _state.value = _state.value.copy(url = v, error = null) }
     fun onNameChange(v: String) { _state.value = _state.value.copy(name = v) }
     fun onKeywordsChange(v: String) { _state.value = _state.value.copy(keywords = v) }
+    fun onIntervalChange(v: Int) { _state.value = _state.value.copy(intervalMinutes = v) }
 
     fun save(onSaved: () -> Unit) {
         val s = _state.value
@@ -58,14 +65,24 @@ class MonitorFormViewModel(
             _state.value = _state.value.copy(saving = true, error = null)
             if (monitorId == null) {
                 val id = dataSource.saveMonitor(
-                    Monitor(url = url, name = s.name.ifBlank { url }, keywords = s.keywords.trim())
+                    Monitor(
+                        url = url,
+                        name = s.name.ifBlank { url },
+                        keywords = s.keywords.trim(),
+                        intervalMinutes = s.intervalMinutes
+                    )
                 )
                 CheckPipeline(dataSource).check(id)
             } else {
                 val existing = dataSource.getMonitor(monitorId)
                 if (existing != null) {
                     dataSource.saveMonitor(
-                        existing.copy(url = url, name = s.name.ifBlank { url }, keywords = s.keywords.trim())
+                        existing.copy(
+                            url = url,
+                            name = s.name.ifBlank { url },
+                            keywords = s.keywords.trim(),
+                            intervalMinutes = s.intervalMinutes
+                        )
                     )
                 }
             }

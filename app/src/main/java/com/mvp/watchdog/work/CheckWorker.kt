@@ -15,14 +15,30 @@ class CheckWorker(appContext: Context, params: WorkerParameters) :
         val app = applicationContext as WatchdogApp
         val dataSource = app.container.monitorDataSource
         val pipeline = CheckPipeline(dataSource)
-        val monitors = dataSource.listMonitors().first().filter { it.enabled }
-        monitors.forEach { m ->
-            val outcome = pipeline.check(m.id)
-            if (outcome.notify) {
+        val now = System.currentTimeMillis()
+
+        // 每个监控有自己的检查频率；worker 每 15 分钟跑一次，只处理到期的
+        val due = dataSource.listMonitors().first()
+            .filter { CheckSchedule.isDue(it, now) }
+
+        val changed = due.mapNotNull { monitor ->
+            val outcome = pipeline.check(monitor.id)
+            if (outcome.notify) monitor to outcome else null
+        }
+
+        when {
+            changed.size == 1 -> {
+                val (monitor, outcome) = changed.first()
                 NotificationHelper.notify(
                     applicationContext,
-                    m.name,
-                    "检测到变化：" + outcome.matchedKeywords.joinToString(",")
+                    monitor.name,
+                    "检测到变化：" + outcome.matchedKeywords.joinToString("、")
+                )
+            }
+            changed.size > 1 -> {
+                NotificationHelper.notifySummary(
+                    applicationContext,
+                    changed.map { (monitor, outcome) -> monitor.name to outcome.matchedKeywords }
                 )
             }
         }
