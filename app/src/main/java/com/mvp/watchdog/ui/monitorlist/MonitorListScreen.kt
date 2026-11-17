@@ -30,6 +30,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -78,6 +80,7 @@ fun MonitorListScreen(
     var refreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     var query by remember { mutableStateOf("") }
+    var pendingDeleteId by remember { mutableStateOf<Long?>(null) }
     val filtered = if (query.isBlank()) monitors else monitors.filter {
         it.name.contains(query, ignoreCase = true) || it.url.contains(query, ignoreCase = true)
     }
@@ -191,9 +194,9 @@ fun MonitorListScreen(
                             val dismissState = rememberSwipeToDismissBoxState(
                                 confirmValueChange = { v ->
                                     if (v == SwipeToDismissBoxValue.EndToStart) {
-                                        vm.delete(m.id)
-                                        true
-                                    } else false
+                                        pendingDeleteId = m.id
+                                    }
+                                    false
                                 }
                             )
                             SwipeToDismissBox(
@@ -263,6 +266,20 @@ fun MonitorListScreen(
                         }
                     }
                 }
+            }
+            if (pendingDeleteId != null) {
+                AlertDialog(
+                    onDismissRequest = { pendingDeleteId = null },
+                    title = { Text("删除监控") },
+                    text = { Text("确定删除这个监控？相关快照与变化记录也会一并删除。") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            pendingDeleteId?.let { vm.delete(it) }
+                            pendingDeleteId = null
+                        }) { Text("删除") }
+                    },
+                    dismissButton = { TextButton(onClick = { pendingDeleteId = null }) { Text("取消") } }
+                )
             }
         }
     }
