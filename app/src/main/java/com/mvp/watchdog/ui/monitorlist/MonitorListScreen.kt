@@ -52,6 +52,7 @@ import com.mvp.watchdog.R
 import com.mvp.watchdog.ui.common.AppCard
 import com.mvp.watchdog.ui.common.Avatar
 import com.mvp.watchdog.ui.common.SkeletonCard
+import com.mvp.watchdog.ui.common.SearchBar
 import com.mvp.watchdog.ui.common.StatusChip
 import com.mvp.watchdog.ui.common.staggeredAppear
 import com.mvp.watchdog.ui.formatTime
@@ -72,6 +73,10 @@ fun MonitorListScreen(
     var loading by remember { mutableStateOf(true) }
     var refreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    var query by remember { mutableStateOf("") }
+    val filtered = if (query.isBlank()) monitors else monitors.filter {
+        it.name.contains(query, ignoreCase = true) || it.url.contains(query, ignoreCase = true)
+    }
 
     LaunchedEffect(Unit) {
         delay(420)
@@ -119,6 +124,13 @@ fun MonitorListScreen(
                     )
                 }
             }
+            Box(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+                SearchBar(
+                    query = query,
+                    onQueryChange = { query = it },
+                    placeholder = "搜索监控名称或网址"
+                )
+            }
             PullToRefreshBox(
                 isRefreshing = refreshing,
                 onRefresh = {
@@ -157,12 +169,20 @@ fun MonitorListScreen(
                         }
                     }
 
+                    filtered.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            "没有匹配「$query」的监控",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
                     else -> LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        itemsIndexed(monitors, key = { _, m -> m.id }) { index, m ->
+                        itemsIndexed(filtered, key = { _, m -> m.id }) { index, m ->
                             AppCard(
                                 modifier = Modifier.staggeredAppear(index),
                                 onClick = { onOpen(m.id) }
