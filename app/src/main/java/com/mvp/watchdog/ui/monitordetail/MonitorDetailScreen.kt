@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mvp.watchdog.ui.common.AppCard
 import com.mvp.watchdog.ui.common.AppTopBar
 import com.mvp.watchdog.ui.formatTime
 
@@ -99,10 +100,14 @@ fun MonitorDetailScreen(
             if (events.isEmpty()) {
                 Text("还没有变化记录", color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
-                events.forEach { e ->
-                    Card(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                        Column(Modifier.padding(12.dp)) {
-                            Text(formatTime(e.occurredAt), style = MaterialTheme.typography.bodySmall)
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    events.forEach { e ->
+                        AppCard {
+                            Text(
+                                formatTime(e.occurredAt),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                             if (e.matchedKeywords.isNotEmpty()) {
                                 Text("命中：${e.matchedKeywords}", style = MaterialTheme.typography.bodyMedium)
                             }
