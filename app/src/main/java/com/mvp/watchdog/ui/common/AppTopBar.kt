@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -18,12 +19,14 @@ import androidx.compose.ui.text.font.FontWeight
 fun AppTopBar(
     title: String,
     onBack: (() -> Unit)? = null,
+    titleModifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
         title = {
             Text(
                 title,
+                modifier = titleModifier,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )

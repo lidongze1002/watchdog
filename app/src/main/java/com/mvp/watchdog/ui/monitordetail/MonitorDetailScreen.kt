@@ -1,5 +1,8 @@
 package com.mvp.watchdog.ui.monitordetail
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,12 +38,15 @@ import com.mvp.watchdog.ui.common.AppTopBar
 import com.mvp.watchdog.ui.common.staggeredAppear
 import com.mvp.watchdog.ui.formatTime
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun MonitorDetailScreen(
     vm: MonitorDetailViewModel,
     onBack: () -> Unit,
     onEdit: (Long) -> Unit,
-    onDiff: (Long) -> Unit
+    onDiff: (Long) -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val monitor by vm.monitor.collectAsState()
     val events by vm.events.collectAsState()
@@ -49,9 +55,19 @@ fun MonitorDetailScreen(
     val latestSnapshot by vm.latestSnapshot.collectAsState()
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
+    val titleModifier = monitor?.let { m ->
+        with(sharedTransitionScope) {
+            Modifier.sharedElement(
+                rememberSharedContentState("monitor_name_${m.id}"),
+                animatedVisibilityScope
+            )
+        }
+    } ?: Modifier
+
     Column(Modifier.fillMaxSize()) {
         AppTopBar(
             title = monitor?.name ?: "详情",
+            titleModifier = titleModifier,
             onBack = onBack,
             actions = {
                 IconButton(onClick = { monitor?.let { onEdit(it.id) } }) {

@@ -69,6 +69,7 @@ fun WatchdogTheme(
     MaterialTheme(
         colorScheme = if (darkTheme) DarkColors else LightColors,
         shapes = AppShapes,
+        typography = AppTypography,
         content = content
     )
 }
