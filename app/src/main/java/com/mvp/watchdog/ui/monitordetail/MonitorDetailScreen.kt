@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mvp.watchdog.ui.common.AppCard
 import com.mvp.watchdog.ui.common.AppTopBar
+import com.mvp.watchdog.ui.common.staggeredAppear
 import com.mvp.watchdog.ui.formatTime
 
 @Composable
@@ -101,8 +102,8 @@ fun MonitorDetailScreen(
                 Text("还没有变化记录", color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    events.forEach { e ->
-                        AppCard {
+                    events.forEachIndexed { index, e ->
+                        AppCard(modifier = Modifier.staggeredAppear(index)) {
                             Text(
                                 formatTime(e.occurredAt),
                                 style = MaterialTheme.typography.labelSmall,

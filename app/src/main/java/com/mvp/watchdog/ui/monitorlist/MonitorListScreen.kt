@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -28,10 +28,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mvp.watchdog.ui.common.AppCard
+import com.mvp.watchdog.ui.common.staggeredAppear
 import com.mvp.watchdog.ui.formatTime
 
 @Composable
@@ -59,7 +61,11 @@ fun MonitorListScreen(
         Column(Modifier.fillMaxSize().padding(padding)) {
             Text(
                 "盯梢",
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    brush = Brush.linearGradient(
+                        listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary)
+                    )
+                ),
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 8.dp)
             )
@@ -88,8 +94,11 @@ fun MonitorListScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(monitors, key = { it.id }) { m ->
-                        AppCard(onClick = { onOpen(m.id) }) {
+                    itemsIndexed(monitors, key = { _, m -> m.id }) { index, m ->
+                        AppCard(
+                            modifier = Modifier.staggeredAppear(index),
+                            onClick = { onOpen(m.id) }
+                        ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     m.name,

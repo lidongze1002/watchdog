@@ -9,6 +9,12 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,36 +64,45 @@ class MainActivity : ComponentActivity() {
 
                 BackHandler { if (stack.size > 1) stack = stack.dropLast(1) }
 
-                when (current) {
-                    Screen.List -> MonitorListScreen(
-                        vm = viewModel(factory = MonitorListViewModel.factory(container.monitorDataSource)),
-                        onAdd = { stack = stack + Screen.Form() },
-                        onOpen = { id -> stack = stack + Screen.Detail(id) }
-                    )
-                    is Screen.Form -> MonitorFormScreen(
-                        vm = viewModel(
-                            key = "form_${current.id}",
-                            factory = MonitorFormViewModel.factory(container.monitorDataSource, current.id)
-                        ),
-                        isEdit = current.id != null,
-                        onBack = { stack = stack.dropLast(1) }
-                    )
-                    is Screen.Detail -> MonitorDetailScreen(
-                        vm = viewModel(
-                            key = "detail_${current.id}",
-                            factory = MonitorDetailViewModel.factory(application, container.monitorDataSource, current.id)
-                        ),
-                        onBack = { stack = stack.dropLast(1) },
-                        onEdit = { id -> stack = stack + Screen.Form(id) },
-                        onDiff = { id -> stack = stack + Screen.Diff(id) }
-                    )
-                    is Screen.Diff -> DiffScreen(
-                        vm = viewModel(
-                            key = "diff_${current.id}",
-                            factory = DiffViewModel.factory(container.monitorDataSource, current.id)
-                        ),
-                        onBack = { stack = stack.dropLast(1) }
-                    )
+                AnimatedContent(
+                    targetState = current,
+                    transitionSpec = {
+                        (fadeIn(tween(220)) + slideInHorizontally(tween(220)) { it / 12 })
+                            .togetherWith(fadeOut(tween(120)))
+                    },
+                    label = "screen"
+                ) { screen ->
+                    when (screen) {
+                        Screen.List -> MonitorListScreen(
+                            vm = viewModel(factory = MonitorListViewModel.factory(container.monitorDataSource)),
+                            onAdd = { stack = stack + Screen.Form() },
+                            onOpen = { id -> stack = stack + Screen.Detail(id) }
+                        )
+                        is Screen.Form -> MonitorFormScreen(
+                            vm = viewModel(
+                                key = "form_${screen.id}",
+                                factory = MonitorFormViewModel.factory(container.monitorDataSource, screen.id)
+                            ),
+                            isEdit = screen.id != null,
+                            onBack = { stack = stack.dropLast(1) }
+                        )
+                        is Screen.Detail -> MonitorDetailScreen(
+                            vm = viewModel(
+                                key = "detail_${screen.id}",
+                                factory = MonitorDetailViewModel.factory(application, container.monitorDataSource, screen.id)
+                            ),
+                            onBack = { stack = stack.dropLast(1) },
+                            onEdit = { id -> stack = stack + Screen.Form(id) },
+                            onDiff = { id -> stack = stack + Screen.Diff(id) }
+                        )
+                        is Screen.Diff -> DiffScreen(
+                            vm = viewModel(
+                                key = "diff_${screen.id}",
+                                factory = DiffViewModel.factory(container.monitorDataSource, screen.id)
+                            ),
+                            onBack = { stack = stack.dropLast(1) }
+                        )
+                    }
                 }
             }
         }
