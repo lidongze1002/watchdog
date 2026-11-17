@@ -11,16 +11,16 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -38,7 +38,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -48,7 +50,9 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.mvp.watchdog.R
 import com.mvp.watchdog.ui.common.AppCard
+import com.mvp.watchdog.ui.common.Avatar
 import com.mvp.watchdog.ui.common.SkeletonCard
+import com.mvp.watchdog.ui.common.StatusChip
 import com.mvp.watchdog.ui.common.staggeredAppear
 import com.mvp.watchdog.ui.formatTime
 import kotlinx.coroutines.delay
@@ -88,16 +92,33 @@ fun MonitorListScreen(
         }
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            Text(
-                "盯梢",
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    brush = Brush.linearGradient(
-                        listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary)
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = 12.dp)
+                    .clip(RoundedCornerShape(26.dp))
+                    .background(
+                        Brush.linearGradient(
+                            listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary)
+                        )
                     )
-                ),
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 8.dp)
-            )
+                    .padding(22.dp)
+            ) {
+                Column {
+                    Text(
+                        "盯梢",
+                        color = Color.White,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        "${monitors.size} 个监控 · ${unseenIds.size} 个有更新",
+                        color = Color.White.copy(alpha = 0.85f),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
             PullToRefreshBox(
                 isRefreshing = refreshing,
                 onRefresh = {
@@ -111,7 +132,7 @@ fun MonitorListScreen(
             ) {
                 when {
                     loading -> Column(
-                        Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         repeat(3) { SkeletonCard() }
@@ -138,7 +159,7 @@ fun MonitorListScreen(
 
                     else -> LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         itemsIndexed(monitors, key = { _, m -> m.id }) { index, m ->
@@ -147,42 +168,46 @@ fun MonitorListScreen(
                                 onClick = { onOpen(m.id) }
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    val nameModifier = with(sharedTransitionScope) {
-                                        Modifier.sharedElement(
-                                            rememberSharedContentState("monitor_name_${m.id}"),
-                                            animatedVisibilityScope
+                                    Avatar(m.name)
+                                    Spacer(Modifier.width(12.dp))
+                                    Column(Modifier.weight(1f)) {
+                                        val nameModifier = with(sharedTransitionScope) {
+                                            Modifier.sharedElement(
+                                                rememberSharedContentState("monitor_name_${m.id}"),
+                                                animatedVisibilityScope
+                                            )
+                                        }
+                                        Text(
+                                            m.name,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.SemiBold,
+                                            modifier = nameModifier,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Spacer(Modifier.height(2.dp))
+                                        Text(
+                                            m.url,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Spacer(Modifier.height(6.dp))
+                                        Text(
+                                            formatTime(m.lastCheckedAt),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
-                                    Text(
-                                        m.name,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.SemiBold,
-                                        modifier = nameModifier.weight(1f),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
                                     if (m.id in unseenIds) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(9.dp)
-                                                .background(MaterialTheme.colorScheme.primary, CircleShape)
+                                        StatusChip(
+                                            text = "有更新",
+                                            container = MaterialTheme.colorScheme.primaryContainer,
+                                            content = MaterialTheme.colorScheme.onPrimaryContainer
                                         )
                                     }
                                 }
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    m.url,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Spacer(Modifier.height(6.dp))
-                                Text(
-                                    formatTime(m.lastCheckedAt),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
                             }
                         }
                     }
