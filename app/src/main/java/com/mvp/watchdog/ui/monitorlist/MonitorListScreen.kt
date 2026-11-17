@@ -88,6 +88,7 @@ fun MonitorListScreen(
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onAdd,
