@@ -21,12 +21,16 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -183,10 +187,36 @@ fun MonitorListScreen(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         itemsIndexed(filtered, key = { _, m -> m.id }) { index, m ->
-                            AppCard(
-                                modifier = Modifier.staggeredAppear(index),
-                                onClick = { onOpen(m.id) }
+                            val dismissState = rememberSwipeToDismissBoxState(
+                                confirmValueChange = { v ->
+                                    if (v == SwipeToDismissBoxValue.EndToStart) {
+                                        vm.delete(m.id)
+                                        true
+                                    } else false
+                                }
+                            )
+                            SwipeToDismissBox(
+                                state = dismissState,
+                                enableDismissFromStartToEnd = false,
+                                backgroundContent = {
+                                    Box(
+                                        Modifier
+                                            .fillMaxSize()
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(MaterialTheme.colorScheme.errorContainer)
+                                            .padding(horizontal = 24.dp),
+                                        contentAlignment = Alignment.CenterEnd
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.Delete,
+                                            contentDescription = "删除监控",
+                                            tint = MaterialTheme.colorScheme.onErrorContainer
+                                        )
+                                    }
+                                },
+                                modifier = Modifier.staggeredAppear(index)
                             ) {
+                                AppCard(onClick = { onOpen(m.id) }) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Avatar(m.name)
                                     Spacer(Modifier.width(12.dp))
@@ -235,4 +265,5 @@ fun MonitorListScreen(
             }
         }
     }
+}
 }
