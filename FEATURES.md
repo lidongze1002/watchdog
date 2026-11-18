@@ -9,6 +9,8 @@
 
 ### 1. 监控列表（01-monitor-list.png）
 
+<img src="docs/screenshots/01-monitor-list.png" width="320" alt="监控列表">
+
 - 渐变 Hero：监控数量、「N 个有更新」、右上角语言设置、**「查看全部变化 ›」**入口。
 - 搜索：按监控名称或网址实时过滤。
 - 卡片：首字母头像、名称、URL、`每 1 小时 · 上次检查 11-15 13:03`。
@@ -18,6 +20,8 @@
 
 ### 2. 添加/编辑监控（02-add-monitor.png）
 
+<img src="docs/screenshots/02-add-monitor.png" width="320" alt="添加监控">
+
 - 名称、URL（必须 http/https）。
 - 关注点：逗号分隔关键词；留空表示页面任何变化都提醒。
 - **检查频率**：15 分钟 / 1 小时 / 6 小时 / 每天（每个监控独立）。
@@ -25,6 +29,8 @@
 - 说明文案提示系统调度可能有几分钟误差。
 
 ### 3. 监控详情（03-monitor-detail.png）
+
+<img src="docs/screenshots/03-monitor-detail.png" width="320" alt="监控详情">
 
 - URL、关注点、上次检查时间。
 - **检查频率 + 计划下次时间**（按上次检查 + 间隔估算）。
@@ -36,6 +42,8 @@
 
 ### 4. 变更对比（04-diff.png）
 
+<img src="docs/screenshots/04-diff.png" width="320" alt="变更对比">
+
 - 逐句对比上一份与当前快照：
   - 红色 `-` 删除句
   - 主色 `+` 新增句
@@ -44,6 +52,8 @@
 
 ### 5. 全部变化（05-all-changes.png）
 
+<img src="docs/screenshots/05-all-changes.png" width="320" alt="全部变化">
+
 - 跨监控聚合最近 300 条变化。
 - 按「今天 / 昨天 / 11月15日」分组，每组显示条数。
 - 每条：监控名、时间、命中关键词胶囊、两句变化摘要。
@@ -51,6 +61,8 @@
 - 点击条目跳转到该监控详情。
 
 ### 6. 语言切换（06-language.png）
+
+<img src="docs/screenshots/06-language.png" width="320" alt="语言切换">
 
 - 中文 / English / 跟随系统，立即生效并持久化。
 - 通知标题、渠道名、错误信息、日期分组同步本地化。
